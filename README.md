@@ -1,41 +1,37 @@
-# priority_queue
+# thread_pool
 ### MIT License
 
-This is a simple implementation of a priority_queue using the C++ STL APIs.
-What I'm trying to do (with a future commits) is to create a lockfree (waitfree) version of it.
-
+This is a simple implementation of a thread_pool using the C++ STL APIs. For now, I require boost::thread (and its releated deps, boost::system) in order to have a method to ::interrupt() not-joinable thread. In the future, I'll remove that deps and improving the `pausing/killing' state of the thread_pool
 Pull requests are appreciated. 
 
+Objects that can be enqueued inside ds::thread_pool must have implemented the function operator ```bool operator()();``` because the pool itself will call that operator in order to execute what the object is supposed to do.
+
 ```c++
-enum class priority_t {
-	HIGH,
-	MED,
-	LOW
+class task {
+public:
+  explicit task(const std::string &c)
+    : m_value{c} {}
+  
+  virtual bool operator()() {
+    std::cout << m_value << std::endl;
+    return true;
+  }
+
+private:
+  std::string m_value;
 };
-
-using obj_pair = std::pair<priority_t, std::string>;
-
-struct comparator {
-    bool operator()(const obj_pair &item1, const obj_pair &item2) {
-        return item1.first > item2.first;
-    }
-};
-
-using queue_t = ds::priority_queue<obj_pair, std::vector<obj_pair>, comparator>;
 ```
 
 #####Usage:
 
 ```c++
-queue_t hq;
-hq.emplace(priority_t::MED, "world");
-hq.emplace(priority_t::HIGH, "Hello");
-hq.emplace(priority_t::LOW, "!");
-
-// -- pop
-obj_pair item1, item2, item3;
-hq.pop(item1); hq.pop(item2); hq.pop(item3);
-std::cout << item1.second << " " << item2.second << " " << item3.second << std::endl;
+ds::thread_pool t;
+t.enqueue<task>(ds::priority_t::LOW, "!");
+t.enqueue<task>(ds::priority_t::MED, "world");
+t.enqueue<task>(ds::priority_t::HIGH, "hello");
 ```
+
 #####Output: 
-Hello world !
+hello
+world
+!

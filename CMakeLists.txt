@@ -1,4 +1,3 @@
-
 ##
 # The MIT License (MIT)
 #
@@ -25,19 +24,16 @@
 
 cmake_minimum_required (VERSION 2.8)
 project (thread_pool_demo)
-add_compile_options(-std=c++1y)
 
+add_compile_options(-std=c++1y -stdlib=libc++)
 include_directories ("${PROJECT_SOURCE_DIR}/include")
+include_directories ("${PROJECT_SOURCE_DIR}/3rdpart/priority_queue/include")
+
 file(GLOB_RECURSE sources src/*.cpp)
 file(GLOB_RECURSE headers include⁄*.hpp)
 
 set(Boost_USE_STATIC_RUNTIME OFF)
-
-if("${CMAKE_SYSTEM}" MATCHES "Linux")
-  set(Boost_USE_STATIC_LIBS OFF)
-else()
-  set(Boost_USE_STATIC_LIBS ON)
-endif()
+set(Boost_USE_STATIC_LIBS ON)
 
 find_package(Boost QUIET COMPONENTS 
   system 

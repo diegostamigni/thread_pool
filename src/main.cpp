@@ -27,17 +27,25 @@
 #include <chrono>
 
 class example {
-  public:
+public:
+  explicit example(const std::string &c)
+    : m_value{c} {}
+  
   virtual bool operator()() {
-    std::cout << "hello, world!" << std::endl;
+    std::cout << m_value << std::endl;
     return true;
   }
+
+private:
+  std::string m_value;
 };
 
 int main(int argc, char **argv) {
   ds::thread_pool t;
-  t.enqueue<example>(ds::priority_t::HIGH);
-  std::this_thread::sleep_for(std::chrono::seconds(10));
+  t.enqueue<example>(ds::priority_t::LOW, "!");
+  t.enqueue<example>(ds::priority_t::MED, "world");
+  t.enqueue<example>(ds::priority_t::HIGH, "hello");
+  std::this_thread::sleep_for(std::chrono::seconds(3));
   return 0;
 }
 

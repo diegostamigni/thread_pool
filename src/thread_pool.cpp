@@ -23,7 +23,6 @@
 //
 
 #include <thread_pool.hpp>
-#include <chrono>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
 using namespace ds;
@@ -106,9 +105,10 @@ void thread_pool::executor(container_functor_t &c) {
   looper<container_functor_t>(c, [&](container_functor_t &c) {
       if (can_execute<container_functor_t>(c)) {
 	std::unique_lock<std::mutex> guard(m_mutex, std::defer_lock);
+	obj_pair pair_task;
 	
 	guard.lock();
-	auto pair_task = c.top();
+	pair_task = c.top();
 	c.pop();
 	guard.unlock();
 	

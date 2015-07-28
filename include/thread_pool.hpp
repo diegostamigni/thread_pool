@@ -24,16 +24,16 @@
 
 #pragma once
 
-#include <future>
 #include <atomic>
 #include <functional>
 #include <boost/noncopyable.hpp>
-#include <boost/lockfree/queue.hpp>
 #include <utility>
+#include <priority_queue.hpp>
 #include <queue>
 #include <type_traits>
 #include <chrono>
-#include <thread>
+#include <vector>
+#include <string>
 
 // forward declaration 
 // we're not exposing boost::thread
@@ -42,16 +42,10 @@ namespace boost {
 }
 
 namespace ds {
-  enum class thread_pool_status_t: int {
-    IDLE, WORKING
-      };
-
-  enum class priority_t {
-    HIGH, MED, LOW
-      };
+  enum class thread_pool_status_t: int { IDLE, WORKING };
+  enum class priority_t : int { HIGH, MED, LOW };
   
   using functor_t = std::function<bool()>;
-  using raw_functor_t = functor_t*;
   using obj_pair = std::pair<ds::priority_t, functor_t>;
   
   class task_comparator {
@@ -73,9 +67,9 @@ namespace ds {
     
     template <typename Type, typename... Args>
     void enqueue(ds::priority_t priority, Args&&... args) {      
+      std::unique_lock<std::mutex> guard(m_mutex, std::defer_lock);
       auto task = std::make_shared<Type>(std::forward<Args>(args)...);
       auto func = [task]() { return (*task)(); };
-      std::unique_lock<std::mutex> guard(m_mutex, std::defer_lock);
       
       if (!is_stopped()) {
 	guard.lock();
@@ -138,4 +132,4 @@ namespace ds {
       executor(m_service_tasks);
     }
   };
-} // lb
+} // ds

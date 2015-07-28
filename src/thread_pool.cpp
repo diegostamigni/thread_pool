@@ -65,6 +65,10 @@ std::size_t thread_pool::deinit() {
   try {
     for (auto &thread : workers) {
       if (thread.get() != nullptr) {
+	// killing a thread is not a good thing at all
+	// rather that interrupt it, we'll probably have
+	// to wait a reasonable time in order to join it than
+	// delete it; 
 	thread->interrupt();
       }
     }

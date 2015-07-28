@@ -37,14 +37,7 @@ set(Boost_USE_STATIC_LIBS ON)
 
 find_package(Boost QUIET COMPONENTS 
   system 
-  signals
-  filesystem
-  regex
-  date_time
-  log
-  log_setup
   thread
-  chrono
 REQUIRED)
 include_directories("${Boost_INCLUDE_DIR}")
 
